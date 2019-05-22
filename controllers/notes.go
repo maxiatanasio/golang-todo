@@ -15,6 +15,12 @@ type Note struct {
 	CreatedAt time.Time     `bson:"created_at json:"created_at"`
 }
 
+const (
+	ERROR_INSERTING_NOTE = "There was a problem inserting the note"
+	ERROR_GETTING_NOTES  = "There was a problem getting all notes"
+	ERROR_UPDATING_NOTE  = "There was a problem updating the note"
+)
+
 func HandleNoteCreate(db *mgo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var note Note
@@ -28,7 +34,7 @@ func HandleNoteCreate(db *mgo.Database) func(c *gin.Context) {
 		note.CreatedAt = time.Now()
 		if err := db.C("notes").Insert(&note); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There was a problem inserting the note",
+				"error": ERROR_INSERTING_NOTE,
 			})
 		}
 		c.JSON(http.StatusOK, note)
@@ -40,7 +46,7 @@ func HandleNoteGetAll(db *mgo.Database) func(c *gin.Context) {
 		var notes []Note
 		if err := db.C("notes").Find(bson.M{}).All(&notes); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There was a problem getting all notes",
+				"error": ERROR_GETTING_NOTES,
 			})
 		}
 		c.JSON(http.StatusOK, notes)
@@ -55,7 +61,7 @@ func HandleNoteDone(db *mgo.Database) func(c *gin.Context) {
 
 		if err := db.C("notes").FindId(note.ID).One(&note); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There was a problem updating the record",
+				"error": ERROR_UPDATING_NOTE,
 			})
 			return
 		}
@@ -64,7 +70,7 @@ func HandleNoteDone(db *mgo.Database) func(c *gin.Context) {
 
 		if err := db.C("notes").UpdateId(note.ID, &note); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There was a problem updating the record",
+				"error": ERROR_UPDATING_NOTE,
 			})
 			return
 		}
@@ -79,7 +85,7 @@ func HandleNoteUndone(db *mgo.Database) func(c *gin.Context) {
 
 		if err := db.C("notes").FindId(note.ID).One(&note); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There was a problem updating the record",
+				"error": ERROR_UPDATING_NOTE,
 			})
 			return
 		}
@@ -88,7 +94,7 @@ func HandleNoteUndone(db *mgo.Database) func(c *gin.Context) {
 
 		if err := db.C("notes").UpdateId(note.ID, &note); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "There was a problem updating the record",
+				"error": ERROR_UPDATING_NOTE,
 			})
 		}
 		c.JSON(http.StatusOK, note)
