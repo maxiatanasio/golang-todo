@@ -5,15 +5,9 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"noteloolvides/models"
 	"time"
 )
-
-type Note struct {
-	ID        bson.ObjectId `bson:"_id" json:"id"`
-	Title     string        `bson:"title" json:"title"`
-	Done      bool          `bson:"done" json:"done"`
-	CreatedAt time.Time     `bson:"created_at json:"created_at"`
-}
 
 const (
 	ERROR_INSERTING_NOTE = "There was a problem inserting the note"
@@ -23,7 +17,7 @@ const (
 
 func HandleNoteCreate(db *mgo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var note Note
+		var note models.Note
 		if err := c.Bind(&note); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "invalid request",
@@ -43,7 +37,7 @@ func HandleNoteCreate(db *mgo.Database) func(c *gin.Context) {
 
 func HandleNoteGetAll(db *mgo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var notes []Note
+		var notes []models.Note
 		if err := db.C("notes").Find(bson.M{}).All(&notes); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": ERROR_GETTING_NOTES,
@@ -56,7 +50,7 @@ func HandleNoteGetAll(db *mgo.Database) func(c *gin.Context) {
 
 func HandleNoteDone(db *mgo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var note Note
+		var note models.Note
 		note.ID = bson.ObjectIdHex(c.Param("id"))
 
 		if err := db.C("notes").FindId(note.ID).One(&note); err != nil {
@@ -80,7 +74,7 @@ func HandleNoteDone(db *mgo.Database) func(c *gin.Context) {
 
 func HandleNoteUndone(db *mgo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var note Note
+		var note models.Note
 		note.ID = bson.ObjectIdHex(c.Param("id"))
 
 		if err := db.C("notes").FindId(note.ID).One(&note); err != nil {
