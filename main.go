@@ -25,7 +25,7 @@ func SetupRouter(db *mgo.Database) *gin.Engine {
 }
 
 func ConnectToMongo() *mgo.Database {
-	session, err := mgo.Dial("localhost:27017")
+	session, err := mgo.Dial("mongodb:27017")
 	if err != nil {
 		log.Fatal(err)
 	}
